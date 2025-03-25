@@ -23,22 +23,35 @@ def generate_votes(candidates, no_voters):
 
 def count_votes(votes, candidates, no_seats):
     round_scores = []
-    for no_seat in range(no_seats):
+    worst_candidates = []
+    for no_round in range(len(candidates) - no_seats + 1):
         round_score = {}
         copy_candidates = candidates.copy()
         if len(round_scores) > 0:
             last_round_score = round_scores[-1]
             worst_candidate = min(last_round_score.items(), key=lambda x: (x[1][1], x[1][0]))[0]
+            worst_candidates.append(worst_candidate)
+        for worst_candidate in worst_candidates:
             copy_candidates.remove(worst_candidate)
+        print(no_round, worst_candidates, copy_candidates)
         # Count the votes for each candidate
         for candidate in copy_candidates:
             total_score = 0
             no_firsts = 0
             for vote in votes:
-                if vote[candidate] == len(candidates) - no_seat:
-                    no_firsts += 1
                 total_score += vote[candidate]
                 
+            for vote in votes:
+                sorted_vote = sorted(vote.items(), key=lambda x: x[1], reverse=True)
+                for first_candidate, _ in sorted_vote:
+                    if first_candidate == candidate:
+                        no_firsts += 1
+                        break
+                    elif first_candidate in worst_candidates:
+                        continue
+                    else:
+                        break                    
+        
             candidate_score = (total_score, no_firsts)
             round_score[candidate] = candidate_score
         round_scores.append(round_score)
@@ -63,8 +76,10 @@ def main():
 
     # Count the votes for each candidate
     round_scores = count_votes(votes, candidates, no_seats)
-    print(votes)
-    print(round_scores[0])
+    for vote in votes:
+        print(vote)
+    for round_score in round_scores:
+        print(round_score)
 
 if __name__ == "__main__":
     main()
