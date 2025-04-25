@@ -77,7 +77,7 @@ def to_csv(round_scores, votes_history, candidates, candidates_removed):
             round_score_list.reverse()
             round_scores_list.append(round_score_list)
         
-        for candidate, _, _ in round_scores_list[0]:
+        for candidate, _, _ in round_scores_list[-1]:
             candidate_scores = []
             for round_score_list in round_scores_list:
                 for candidate_name, score, firsts in round_score_list:
