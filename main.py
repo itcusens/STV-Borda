@@ -1,5 +1,6 @@
 import random
-
+from typing import Tuple
+import csv
 # List of common first names and last names to generate random combinations
 first_names = ['James', 'John', 'Robert', 'Michael', 'William', 'David', 'Richard', 'Joseph', 'Thomas', 'Charles',
                'Mary', 'Patricia', 'Jennifer', 'Linda', 'Elizabeth', 'Barbara', 'Susan', 'Jessica', 'Sarah', 'Karen']
@@ -20,6 +21,17 @@ def generate_votes(candidates, no_voters):
             dummy_candidates.remove(candidate)
         votes.append(vote)
     return votes
+
+# buses is a list of tuples (procent_of_voters, no_candidates for the bus)
+# def generate_buses_and_random(candidates, no_voters, buses: list[Tuple[float, int]]):
+#     votes = []
+#     for bus in buses:
+#         candidates_for_bus = random.sample(candidates, bus[1])
+#         no_voters_for_bus = int(no_voters * bus[0])
+#         voters_for_bus = random.sample(range(no_voters), no_voters_for_bus)
+#         score = 30
+#         for voter in voters_for_bus:
+#             vote = {}
 
 def count_votes(votes, candidates, no_seats):
     round_scores = []
@@ -56,7 +68,26 @@ def count_votes(votes, candidates, no_seats):
             round_score[candidate] = candidate_score
         round_scores.append(round_score)
     return round_scores
-            
+
+def from_list_to_table(votes_list, candidates):
+    candidates_table = {}
+    for candidate in candidates:
+        candidates_table[candidate] = []
+    for vote in votes_list:
+        for candidate in candidates:
+            candidates_table[candidate].append(len(candidates) - vote[candidate])
+    return candidates_table
+        
+        
+def to_csv(votes_list, candidates):
+    candidates_table = from_list_to_table(votes_list, candidates)
+    with open('votes.csv', 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Buletinul de vot:'] + list(range(1, len(votes_list) + 1)))
+        for candidate in candidates:
+            writer.writerow([candidate] + candidates_table[candidate])
+    
+
 def main():
     # Generate 31 unique random full names
     no_candidates = int(input("Enter the number of candidates: "))
@@ -78,8 +109,11 @@ def main():
     round_scores = count_votes(votes, candidates, no_seats)
     for vote in votes:
         print(vote)
-    for round_score in round_scores:
-        print(round_score)
+    for i, round_score in enumerate(round_scores):
+        print(f"Runda {i+1}:")
+        for candidate, score in round_score.items():
+            print(f"{candidate}: {score[0]} {score[1]}")
+    to_csv(votes, candidates)
 
 if __name__ == "__main__":
     main()
